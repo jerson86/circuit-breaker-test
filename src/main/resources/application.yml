@@ -1,0 +1,39 @@
+resilience4j:
+  circuitbreaker:
+    instances:
+      externalService:
+        failureRateThreshold: 50 # Abre el circuito si el 50% de las llamadas fallan
+        slowCallRateThreshold: 50 # Considera lentas las llamadas que superen el umbral
+        slowCallDurationThreshold: 2s # Si una llamada tarda más de 2s, se cuenta como "lenta"
+        permittedNumberOfCallsInHalfOpenState: 2 #Número permitido de llamadas en estado semiabierto
+        maxWaitDurationInHalfOpenState: 10s #Duración máxima de espera en estado semiabierto
+        slidingWindowSize: 5 # Se evalúan las últimas 5 llamadas
+        minimumNumberOfCalls: 3 # Se necesitan al menos 3 llamadas para evaluar fallos
+        slidingWindowType: COUNT_BASED
+        waitDurationInOpenState: 10s # Espera 5s antes de probar si el servicio volvió
+        automaticTransitionFromOpenToHalfOpenEnabled: true #Transición automática de abierto a semiabierto activada
+  timelimiter:
+    instances:
+      externalService:
+        timeoutDuration: 1s # Si el servicio tarda más de 1s, se cancela la llamada
+  retry:
+    instances:
+      externalService:
+        maxAttempts: 3 # Intentar hasta 3 veces antes de fallar
+        waitDuration: 500ms # Esperar 500ms entre intentos
+server:
+  port: 9090
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: INFO
+    io.github.resilience4j: DEBUG
